@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillForge — Student Skill Evaluation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="glow-orb one"></div>
+<div class="glow-orb two"></div>
+
+<div class="page-wrap">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-name">SkillForge</span>
+    </div>
+
+    <div class="hero-tag">Next-Gen Evaluation</div>
+    <h1 class="hero-title">Forge Your<br><span>Career Path</span><br>Strategically</h1>
+    <p class="hero-desc">A structured framework to evaluate your skills, set goals, and build daily study plans aligned with your dream companies.</p>
+
+    <div class="feature-list">
+      <div class="feature-item"><div class="feature-dot"></div>AI-aligned skill gap analysis</div>
+      <div class="feature-item"><div class="feature-dot purple"></div>Company-specific study plans</div>
+      <div class="feature-item"><div class="feature-dot red"></div>Daily progress tracking</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="form-header">
+      <h2 class="form-title">Create Your Profile</h2>
+      <p class="form-subtitle">Set up your skill evaluation dashboard in seconds</p>
+    </div>
+
+    <form id="loginForm" novalidate>
+
+      <!-- Name -->
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <input class="form-input" type="text" id="name" placeholder="e.g. Arjun Sharma" autocomplete="name"/>
+        <div class="error-msg" id="nameErr">⚠ Please enter your full name</div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-input" type="email" id="email" placeholder="you@university.edu" autocomplete="email"/>
+        <div class="error-msg" id="emailErr">⚠ Enter a valid email address</div>
+      </div>
+
+      <!-- Skills -->
+      <div class="form-group">
+        <label class="form-label">Current Skills</label>
+        <div class="skills-input-row">
+          <input class="form-input" type="text" id="skillInput" placeholder="Type a skill and press +" />
+          <button type="button" class="add-btn" onclick="addSkill()">+</button>
+        </div>
+        <div class="skills-tag-container" id="skillTags"></div>
+        <div class="error-msg" id="skillErr">⚠ Add at least one skill</div>
+      </div>
+
+      <!-- Career Goal -->
+      <div class="form-group">
+        <label class="form-label" for="careerGoal">Career Goal</label>
+        <textarea class="form-textarea" id="careerGoal" placeholder="e.g. Become a Full Stack Engineer at a product-based company within 12 months..."></textarea>
+        <div class="error-msg" id="goalErr">⚠ Describe your career goal</div>
+      </div>
+
+      <button type="submit" class="submit-btn">Launch My Dashboard →</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Profile saved! Redirecting…</div>
+
+<script>
+  let skills = [];
+
+  function addSkill() {
+    const input = document.getElementById('skillInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (skills.includes(val)) { input.value = ''; return; }
+    skills.push(val);
+    renderTags();
+    input.value = '';
+    input.focus();
+  }
+
+  document.getElementById('skillInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addSkill(); }
+  });
+
+  function removeSkill(i) {
+    skills.splice(i, 1);
+    renderTags();
+  }
+
+  function renderTags() {
+    const container = document.getElementById('skillTags');
+    container.innerHTML = skills.map((s, i) =>
+      `<span class="skill-tag">${s}<span class="remove" onclick="removeSkill(${i})">×</span></span>`
+    ).join('');
+  }
+
+  function showError(id, inputId) {
+    document.getElementById(id).classList.add('show');
+    if (inputId) document.getElementById(inputId)?.classList.add('error');
+  }
+
+  function clearError(id, inputId) {
+    document.getElementById(id).classList.remove('show');
+    if (inputId) document.getElementById(inputId)?.classList.remove('error');
+  }
+
+  // Live clearing
+  ['name','email','careerGoal'].forEach(f => {
+    document.getElementById(f).addEventListener('input', () => {
+      clearError(f + (f === 'careerGoal' ? 'Err' : 'Err'), f);
+    });
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let valid = true;
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const goal = document.getElementById('careerGoal').value.trim();
+
+    clearError('nameErr','name'); clearError('emailErr','email');
+    clearError('skillErr',null); clearError('goalErr','careerGoal');
+
+    if (!name || name.length < 2) { showError('nameErr','name'); valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('emailErr','email'); valid = false; }
+    if (skills.length === 0) { showError('skillErr',null); valid = false; }
+    if (!goal || goal.length < 10) { showError('goalErr','careerGoal'); valid = false; }
+
+    if (!valid) return;
+
+    const userData = { name, email, skills, careerGoal: goal, joinedAt: new Date().toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'}) };
+    localStorage.setItem('sf_user', JSON.stringify(userData));
+
+    document.getElementById('toast').classList.add('show');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1400);
+  });
+
+  // If already logged in
+  if (localStorage.getItem('sf_user')) {
+    window.location.href = 'dashboard.html';
+  }
+</script>
+</body>
+</html>

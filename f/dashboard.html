@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — SkillForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <span class="sidebar-brand-name">SkillForge</span>
+    </div>
+
+    <div class="nav-section-label">Navigation</div>
+    <a class="nav-item active" onclick="showSection('overview')"><span class="nav-icon">⊞</span> Overview</a>
+    <a class="nav-item" onclick="showSection('profile')"><span class="nav-icon">◉</span> My Profile</a>
+    <a class="nav-item" onclick="showSection('target')"><span class="nav-icon">◎</span> Target Company</a>
+    <a class="nav-item" onclick="showSection('plan')"><span class="nav-icon">⊡</span> Daily Plan</a>
+
+    <div style="margin-top:16px"></div>
+    <div class="nav-section-label">History</div>
+    <a class="nav-item" onclick="showSection('history')"><span class="nav-icon">◫</span> Plan History</a>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebarAvatar">?</div>
+        <div class="user-chip-info">
+          <div class="user-chip-name" id="sidebarName">Loading...</div>
+          <div class="user-chip-role">Student</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="sectionTitle">Overview</h1>
+        <p id="sectionDesc">Welcome back, let's crush today's goals.</p>
+      </div>
+      <div class="date-badge" id="dateDisplay"></div>
+    </div>
+
+    <!-- ===== OVERVIEW SECTION ===== -->
+    <div id="sec-overview">
+      <div class="stats-row">
+        <div class="stat-card c1">
+          <div class="stat-label">Skills Acquired</div>
+          <div class="stat-value" id="statSkills">0</div>
+          <div class="stat-sub">Current stack</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-label">Study Plans</div>
+          <div class="stat-value" id="statPlans">0</div>
+          <div class="stat-sub">Total created</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-label">Hours Planned</div>
+          <div class="stat-value" id="statHours">0</div>
+          <div class="stat-sub">Across all plans</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-label">Target Set</div>
+          <div class="stat-value" id="statTarget">—</div>
+          <div class="stat-sub">Dream company</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon green">👤</span> Profile Summary</div>
+          </div>
+          <div class="profile-meta" id="overviewProfile"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon purple">⚡</span> Skill Progress</div>
+          </div>
+          <div id="overviewProgress"></div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <div class="card-title"><span class="icon orange">📋</span> Latest Study Plan</div>
+          </div>
+          <div id="overviewLatestPlan"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PROFILE SECTION ===== -->
+    <div id="sec-profile" style="display:none">
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon green">👤</span> Personal Information</div>
+          </div>
+          <div class="profile-meta" id="profileDetails"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon purple">⚡</span> Current Skills</div>
+          </div>
+          <div class="skill-tags" id="profileSkills"></div>
+          <div style="margin-top:20px">
+            <div class="card-title" style="font-size:13px; margin-bottom:12px;"><span class="icon orange">🎯</span> Career Goal</div>
+            <p style="font-size:13px; line-height:1.7; color:rgba(232,234,246,0.7);" id="profileGoal"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TARGET SECTION ===== -->
+    <div id="sec-target" style="display:none">
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon green">🏢</span> Set Target Company</div>
+          </div>
+          <div style="margin-bottom:14px; font-size:13px; color:var(--muted);">Enter the company you're aiming for. This will guide your study plans.</div>
+          <div class="input-row">
+            <input class="db-input" type="text" id="companyInput" placeholder="e.g. Google, Microsoft, Amazon…"/>
+            <button class="save-btn" onclick="saveCompany()">Save</button>
+          </div>
+          <div id="companySaved"></div>
+          <div class="form-error-small" id="companyErr">⚠ Please enter a company name</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon purple">📊</span> Readiness Check</div>
+          </div>
+          <div id="readinessContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DAILY PLAN SECTION ===== -->
+    <div id="sec-plan" style="display:none">
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon orange">📅</span> Create Daily Plan</div>
+          </div>
+          <div class="plan-form">
+            <div class="plan-row">
+              <div class="plan-field">
+                <label>Study Hours</label>
+                <input class="db-input" type="number" id="planHours" placeholder="e.g. 4" min="0.5" max="24" step="0.5"/>
+                <div class="form-error-small" id="hoursErr">⚠ Enter 0.5–24 hours</div>
+              </div>
+              <div class="plan-field">
+                <label>Date</label>
+                <input class="db-input" type="date" id="planDate"/>
+              </div>
+            </div>
+            <div class="plan-field">
+              <label>Topics to Practice</label>
+              <textarea class="db-textarea" id="planTopics" placeholder="e.g. Arrays, LinkedLists, System Design basics…"></textarea>
+              <div class="form-error-small" id="topicsErr">⚠ Enter at least one topic</div>
+            </div>
+            <div class="plan-field">
+              <label>Practice Tasks</label>
+              <textarea class="db-textarea" id="planTasks" placeholder="e.g. Solve 5 LeetCode medium problems, read Chapter 3…"></textarea>
+              <div class="form-error-small" id="tasksErr">⚠ Enter at least one task</div>
+            </div>
+            <div class="plan-field">
+              <label>Notes / Reminders (optional)</label>
+              <input class="db-input" type="text" id="planNotes" placeholder="e.g. Review before bed, drink water"/>
+            </div>
+            <button class="save-btn" style="width:100%; padding:13px" onclick="savePlan()">+ Save Daily Plan</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon green">✅</span> Today's Plan</div>
+          </div>
+          <div id="todayPlan"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== HISTORY SECTION ===== -->
+    <div id="sec-history" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon purple">📚</span> All Study Plans</div>
+          <button class="save-btn" onclick="clearAllPlans()" style="background: rgba(255,107,107,0.15); color: var(--accent3); font-size:11px; padding: 8px 14px;">Clear All</button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── DATA INIT ──────────────────────────────────────────────────
+  const user = JSON.parse(localStorage.getItem('sf_user') || 'null');
+  if (!user) { window.location.href = 'index.html'; }
+
+  let plans = JSON.parse(localStorage.getItem('sf_plans') || '[]');
+  let targetCompany = localStorage.getItem('sf_company') || '';
+
+  // ── SIDEBAR TOGGLE ────────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  // ── SECTION ROUTING ───────────────────────────────────────────
+  const sections = ['overview','profile','target','plan','history'];
+  const titles = {
+    overview: ['Overview', 'Welcome back — let\'s crush today\'s goals.'],
+    profile: ['My Profile', 'Your skill snapshot and career direction.'],
+    target: ['Target Company', 'Set your dream company and track readiness.'],
+    plan: ['Daily Study Plan', 'Create and track your structured daily study sessions.'],
+    history: ['Plan History', 'All your saved study plans in one place.']
+  };
+
+  function showSection(id) {
+    sections.forEach(s => {
+      document.getElementById('sec-'+s).style.display = s === id ? '' : 'none';
+      document.querySelectorAll('.nav-item').forEach((el,i) => {
+        el.classList.toggle('active', sections[i] === id);
+      });
+    });
+    document.getElementById('sectionTitle').textContent = titles[id][0];
+    document.getElementById('sectionDesc').textContent = titles[id][1];
+    closeSidebar();
+    if (id === 'overview') renderOverview();
+    if (id === 'profile') renderProfile();
+    if (id === 'target') renderTarget();
+    if (id === 'plan') renderPlanSection();
+    if (id === 'history') renderHistory();
+  }
+
+  // ── RENDER FUNCTIONS ──────────────────────────────────────────
+  function renderSidebar() {
+    const initials = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('sidebarAvatar').textContent = initials;
+    document.getElementById('sidebarName').textContent = user.name.split(' ')[0];
+  }
+
+  function renderOverview() {
+    // Stats
+    document.getElementById('statSkills').textContent = user.skills.length;
+    document.getElementById('statPlans').textContent = plans.length;
+    const totalHours = plans.reduce((s,p) => s + parseFloat(p.hours||0), 0);
+    document.getElementById('statHours').textContent = totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1);
+    document.getElementById('statTarget').textContent = targetCompany || '—';
+
+    // Profile
+    document.getElementById('overviewProfile').innerHTML = `
+      <div class="meta-row"><div class="meta-icon">👤</div><div><div class="meta-key">Name</div><div class="meta-val">${user.name}</div></div></div>
+      <div class="meta-row"><div class="meta-icon">✉️</div><div><div class="meta-key">Email</div><div class="meta-val">${user.email}</div></div></div>
+      <div class="meta-row"><div class="meta-icon">📅</div><div><div class="meta-key">Joined</div><div class="meta-val">${user.joinedAt}</div></div></div>
+    `;
+
+    // Progress
+    const skillsToLearn = ['DSA','System Design','JavaScript','React','Node.js','SQL','Python','Git','AWS','LeetCode'];
+    const userSkillsLower = user.skills.map(s=>s.toLowerCase());
+    const matched = skillsToLearn.filter(s => userSkillsLower.some(u => u.includes(s.toLowerCase())));
+    const pct = Math.min(100, Math.round((user.skills.length / 10) * 100));
+    let progressHTML = `
+      <div class="progress-label"><span>Overall Readiness</span><span>${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label"><span>Plans Completed</span><span>${Math.min(plans.length,10)}/10</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(plans.length,10)*10}%; background: linear-gradient(90deg, var(--accent4), var(--accent3))"></div></div>
+      <div style="margin-top:12px; font-size:12px; color:var(--muted);">Keep adding skills and creating daily plans to increase your readiness score.</div>
+    `;
+    document.getElementById('overviewProgress').innerHTML = progressHTML;
+
+    // Latest plan
+    if (plans.length === 0) {
+      document.getElementById('overviewLatestPlan').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No plans yet. Create your first daily plan!</div>`;
+    } else {
+      const p = plans[plans.length-1];
+      document.getElementById('overviewLatestPlan').innerHTML = renderPlanCard(p, false);
+    }
+  }
+
+  function renderProfile() {
+    document.getElementById('profileDetails').innerHTML = `
+      <div class="meta-row"><div class="meta-icon">👤</div><div><div class="meta-key">Full Name</div><div class="meta-val">${user.name}</div></div></div>
+      <div class="meta-row"><div class="meta-icon">✉️</div><div><div class="meta-key">Email</div><div class="meta-val">${user.email}</div></div></div>
+      <div class="meta-row"><div class="meta-icon">📅</div><div><div class="meta-key">Member Since</div><div class="meta-val">${user.joinedAt}</div></div></div>
+      <div class="meta-row"><div class="meta-icon">🏢</div><div><div class="meta-key">Target Company</div><div class="meta-val">${targetCompany || 'Not set yet'}</div></div></div>
+    `;
+    document.getElementById('profileSkills').innerHTML = user.skills.map(s=>`<span class="skill-pill">${s}</span>`).join('');
+    document.getElementById('profileGoal').textContent = user.careerGoal;
+  }
+
+  function renderTarget() {
+    document.getElementById('companyInput').value = targetCompany;
+    renderCompanySaved();
+    renderReadiness();
+  }
+
+  function renderCompanySaved() {
+    const el = document.getElementById('companySaved');
+    if (targetCompany) {
+      el.innerHTML = `<div class="company-badge">🏢 <strong>${targetCompany}</strong> — your goal is set!</div>`;
+    } else {
+      el.innerHTML = '';
+    }
+  }
+
+  function renderReadiness() {
+    const el = document.getElementById('readinessContent');
+    const skillCount = user.skills.length;
+    const planCount = plans.length;
+    const score = Math.min(100, skillCount * 8 + planCount * 4 + (targetCompany ? 20 : 0));
+    const label = score >= 80 ? '🔥 High Readiness' : score >= 50 ? '⚡ Moderate Readiness' : '🌱 Early Stage';
+    const color = score >= 80 ? 'var(--accent)' : score >= 50 ? 'var(--accent4)' : 'var(--accent3)';
+    el.innerHTML = `
+      <div style="text-align:center; padding:16px 0 20px;">
+        <div style="font-size:48px; font-family:var(--font-head); font-weight:800; color:${color}; letter-spacing:-3px">${score}<span style="font-size:22px">%</span></div>
+        <div style="font-size:13px; color:var(--muted); margin-top:4px">${label}</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${score}%; background: linear-gradient(90deg, ${color}, var(--accent2))"></div></div>
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px">
+        <div class="meta-row"><div class="meta-icon">${skillCount >= 5 ? '✅' : '⬜'}</div><div><div class="meta-key">Skills (${skillCount}/5+)</div><div class="meta-val" style="font-size:12px">Add more skills to boost score</div></div></div>
+        <div class="meta-row"><div class="meta-icon">${planCount >= 5 ? '✅' : '⬜'}</div><div><div class="meta-key">Plans (${planCount}/5+)</div><div class="meta-val" style="font-size:12px">Create daily plans consistently</div></div></div>
+        <div class="meta-row"><div class="meta-icon">${targetCompany ? '✅' : '⬜'}</div><div><div class="meta-key">Target Set</div><div class="meta-val" style="font-size:12px">${targetCompany || 'Set a target company above'}</div></div></div>
+      </div>
+    `;
+  }
+
+  function renderPlanSection() {
+    // Set today's date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('planDate').value = today;
+    renderTodayPlan();
+  }
+
+  function renderTodayPlan() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayPlans = plans.filter(p => p.date === today);
+    const el = document.getElementById('todayPlan');
+    if (todayPlans.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div>No plan for today yet.<br>Create one using the form!</div>`;
+    } else {
+      el.innerHTML = todayPlans.map(p => renderPlanCard(p, true)).join('');
+    }
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('historyList');
+    if (plans.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📚</div>No plans saved yet. Start creating your daily plans!</div>`;
+    } else {
+      const sorted = [...plans].reverse();
+      el.innerHTML = sorted.map(p => renderPlanCard(p, true)).join('');
+    }
+  }
+
+  function renderPlanCard(p, showDelete) {
+    const tasks = (p.tasks || '').split(',').map(t=>t.trim()).filter(Boolean);
+    return `
+      <div class="plan-entry" id="plan-${p.id}">
+        ${showDelete ? `<button class="delete-plan-btn" onclick="deletePlan('${p.id}')">✕</button>` : ''}
+        <div class="plan-entry-header">
+          <div class="plan-date">📅 ${formatDate(p.date)}</div>
+          <div class="plan-hours-badge">⏱ ${p.hours}h</div>
+        </div>
+        <div class="plan-section">
+          <div class="plan-section-label">Topics</div>
+          <div class="plan-section-value">${p.topics}</div>
+        </div>
+        <div class="plan-section">
+          <div class="plan-section-label">Practice Tasks</div>
+          <div class="plan-tasks">${tasks.map(t=>`<span class="task-tag">${t}</span>`).join('')}</div>
+        </div>
+        ${p.notes ? `<div class="plan-section"><div class="plan-section-label">Notes</div><div class="plan-section-value" style="color:var(--muted); font-size:12px;">${p.notes}</div></div>` : ''}
+      </div>
+    `;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'Unknown';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+  }
+
+  // ── SAVE ACTIONS ──────────────────────────────────────────────
+  function saveCompany() {
+    const val = document.getElementById('companyInput').value.trim();
+    const errEl = document.getElementById('companyErr');
+    if (!val) { errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+    targetCompany = val;
+    localStorage.setItem('sf_company', targetCompany);
+    renderCompanySaved();
+    renderReadiness();
+    showToast('🏢 Target company saved!');
+  }
+
+  function savePlan() {
+    const hours = parseFloat(document.getElementById('planHours').value);
+    const date = document.getElementById('planDate').value;
+    const topics = document.getElementById('planTopics').value.trim();
+    const tasks = document.getElementById('planTasks').value.trim();
+    const notes = document.getElementById('planNotes').value.trim();
+
+    let valid = true;
+    ['hoursErr','topicsErr','tasksErr'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+    if (!hours || hours < 0.5 || hours > 24) { document.getElementById('hoursErr').classList.add('show'); valid = false; }
+    if (!topics || topics.length < 3) { document.getElementById('topicsErr').classList.add('show'); valid = false; }
+    if (!tasks || tasks.length < 3) { document.getElementById('tasksErr').classList.add('show'); valid = false; }
+
+    if (!valid) return;
+
+    const plan = {
+      id: Date.now().toString(),
+      hours, date, topics, tasks, notes,
+      createdAt: new Date().toISOString()
+    };
+
+    plans.push(plan);
+    localStorage.setItem('sf_plans', JSON.stringify(plans));
+
+    // Reset
+    document.getElementById('planHours').value = '';
+    document.getElementById('planTopics').value = '';
+    document.getElementById('planTasks').value = '';
+    document.getElementById('planNotes').value = '';
+
+    renderTodayPlan();
+    showToast('✅ Plan saved successfully!');
+  }
+
+  function deletePlan(id) {
+    plans = plans.filter(p => p.id !== id);
+    localStorage.setItem('sf_plans', JSON.stringify(plans));
+    const el = document.getElementById('plan-' + id);
+    if (el) { el.style.opacity = '0'; el.style.transform = 'translateX(-20px)'; el.style.transition = 'all 0.25s'; setTimeout(() => { el.remove(); }, 250); }
+    showToast('🗑 Plan deleted');
+  }
+
+  function clearAllPlans() {
+    if (!confirm('Delete all study plans? This cannot be undone.')) return;
+    plans = [];
+    localStorage.setItem('sf_plans', JSON.stringify(plans));
+    renderHistory();
+    showToast('🗑 All plans cleared');
+  }
+
+  function logout() {
+    localStorage.removeItem('sf_user');
+    localStorage.removeItem('sf_plans');
+    localStorage.removeItem('sf_company');
+    window.location.href = 'index.html';
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────────
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────
+  function init() {
+    renderSidebar();
+    const now = new Date();
+    document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    showSection('overview');
+  }
+
+  init();
+</script>
+</body>
+</html>
